@@ -15,8 +15,7 @@ static mut S3_CONFIG: Lazy<SdkConfig> = Lazy::new(|| {
      return SdkConfig::builder().build();
 });
 
-/// A struct providing most necessary APIs to work with Cloudflare
-/// R2 object storage.
+/// A struct providing most necessary APIs to work with Cloudflare R2 object storage.
 #[derive(Debug, Clone)]
 pub struct R2Manager {
      bucket_name: String,
@@ -24,8 +23,8 @@ pub struct R2Manager {
 }
 
 impl R2Manager {
-     /// Creates a new instance of R2Manager. The region is set to us-east-1 
-     /// R2 object storage.
+     /// Creates a new instance of R2Manager. The region is set to us-east-1 which aliases
+     /// to auto. Read more here <https://developers.cloudflare.com/r2/api/s3/api/>.
      pub async fn new(
           bucket_name: &str,
           cloudflare_kv_uri: &str, 
@@ -52,10 +51,12 @@ impl R2Manager {
           }
      }
      
+     /// Get the bucket name of the R2Manager.
      pub fn get_bucket_name(&self) -> &str {
           &self.bucket_name
      }
 
+     /// Create a bucket.
      pub async fn create_bucket(&self) {
           let create_bucket_request = self.client
                .create_bucket()
@@ -73,6 +74,7 @@ impl R2Manager {
           }
      }
 
+     /// Delete a bucket.
      pub async fn delete_bucket(&self) {
           let delete_bucket_request = self.client
                .delete_bucket()
@@ -90,6 +92,11 @@ impl R2Manager {
           }
      }
 
+     /// Upload an object in &[u8] format.
+     /// ```
+     /// let str_bytes = "Hello there!".as_bytes();
+     /// r2manager.upload("my_object_name", str_bytes, Some("max-age:60"), Some("text/plain"));
+     /// ```
      pub async fn upload(
           &self, 
           object_name: &str, 
@@ -123,6 +130,7 @@ impl R2Manager {
           }
      }
 
+     /// Get an object in Vec<u8> form.
      pub async fn get(
           &self, 
           object_name: &str) -> Option<Vec<u8>> {
@@ -147,6 +155,7 @@ impl R2Manager {
           }
      }
 
+     /// Delete an object.
      pub async fn delete(
           &self, 
           object_name: &str) {
