@@ -2,6 +2,10 @@
 name = "cloudflare-r2-rs"
 version = "0.1.0"
 edition = "2021"
+repository = "https://github.com/milen-denev/cloudflare-r2-rs"
+license = "Apache-2.0"
+keywords = ["cloudflare", "r2", "object-storage"]
+authors = ["Milen Denev"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
