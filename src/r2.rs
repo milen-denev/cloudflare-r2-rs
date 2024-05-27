@@ -1,3 +1,4 @@
+use std::ptr::addr_of;
 use std::sync::Arc;
 use once_cell::sync::Lazy;
 
@@ -45,7 +46,7 @@ impl R2Manager {
                S3_CONFIG.clone_from(&s3_config);
                let manager = R2Manager {
                     bucket_name: bucket_name.into(),
-                    client: Arc::new(aws_sdk_s3::Client::new(&S3_CONFIG))
+                    client: Arc::new(aws_sdk_s3::Client::new(&*addr_of!(S3_CONFIG)))
                };
                return manager;
           }
