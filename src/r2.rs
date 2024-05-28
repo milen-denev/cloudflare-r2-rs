@@ -93,10 +93,10 @@ impl R2Manager {
           }
      }
 
-     /// Upload an object in &[u8] format.
+     /// Upload an object in &[u8] format. Gives control to set Cache-Control header and Content-Type header
      /// ```
      /// let str_bytes = "Hello there!".as_bytes();
-     /// r2manager.upload("my_object_name", str_bytes, Some("max-age:60"), Some("text/plain"));
+     /// r2manager.upload("my_object_name", str_bytes, Some("max-age=60"), Some("text/plain"));
      /// ```
      pub async fn upload(
           &self, 

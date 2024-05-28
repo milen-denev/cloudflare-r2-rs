@@ -21,7 +21,8 @@ let r2_manager = R2Manager::new(
     "some-long-secret-key-55353-53535-55353-53535"
 ;
 
-r2_manager.upload("test", b"Hello world", Some("max-age:60"), Some("text/plain")).await;
+//Gives control to set Cache-Control header and Content-Type header
+r2_manager.upload("test", b"Hello world", Some("max-age=60"), Some("text/plain")).await;
 let bytes = r2_manager.get("test").await.unwrap();
 println!("{}", String::from_utf8(bytes).unwrap());
 ```
