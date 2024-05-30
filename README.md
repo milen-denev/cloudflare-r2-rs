@@ -19,7 +19,7 @@ let r2_manager = R2Manager::new(
     "some-id-55353-53535",
     //API Token's Secret Access Key
     "some-long-secret-key-55353-53535-55353-53535"
-;
+).await;
 
 //Gives control to set Cache-Control header and Content-Type header
 r2_manager.upload("test", b"Hello world", Some("max-age=60"), Some("text/plain")).await;
