@@ -5,7 +5,7 @@ Simple Rust API for Cloudflare's R2 with **create_bucket**, **delete_bucket** an
 ### cargo.toml
 ```TOML
 [dependencies]
-cloudflare-r2-rs = "0.3.0"
+cloudflare-r2-rs = "0.4.0"
 ```
 
 ### example use
