@@ -1,5 +1,7 @@
 use std::ptr::addr_of;
 use std::sync::Arc;
+use aws_sdk_s3::config::Credentials;
+use aws_sdk_s3::config::SharedCredentialsProvider;
 use once_cell::sync::Lazy;
 
 use log::error;
@@ -32,26 +34,73 @@ impl R2Manager {
           cloudflare_kv_client_id: &str,
           cloudflare_kv_secret: &str
      ) -> R2Manager {
-          std::env::set_var("AWS_ACCESS_KEY_ID", cloudflare_kv_client_id);
-          std::env::set_var("AWS_SECRET_ACCESS_KEY", cloudflare_kv_secret);
+          let cred = Credentials::new(
+               cloudflare_kv_client_id, 
+               cloudflare_kv_secret, 
+               None, 
+               None, 
+               "custom");
+
+          let shared_cred = SharedCredentialsProvider::new(cred);
 
           let s3_config = aws_config::load_from_env()
                 .await
                 .into_builder()
+                .credentials_provider(shared_cred)
                 .endpoint_url(cloudflare_kv_uri)
                 .region(Region::new("us-east-1"))
                 .build();
 
           unsafe {
                S3_CONFIG.clone_from(&s3_config);
+
+               let client = aws_sdk_s3::Client::new(&*addr_of!(S3_CONFIG));
+
                let manager = R2Manager {
                     bucket_name: bucket_name.into(),
-                    client: Arc::new(aws_sdk_s3::Client::new(&*addr_of!(S3_CONFIG)))
+                    client: Arc::new(client)
                };
                return manager;
           }
      }
      
+     pub async fn new_with_region(
+          bucket_name: &str,
+          cloudflare_kv_uri: &str, 
+          cloudflare_kv_client_id: &str,
+          cloudflare_kv_secret: &str,
+          region: &str
+     ) -> R2Manager {
+          let cred = Credentials::new(
+               cloudflare_kv_client_id, 
+               cloudflare_kv_secret, 
+               None, 
+               None, 
+               "custom");
+
+          let shared_cred = SharedCredentialsProvider::new(cred);
+
+          let s3_config = aws_config::load_from_env()
+                .await
+                .into_builder()
+                .credentials_provider(shared_cred)
+                .endpoint_url(cloudflare_kv_uri)
+                .region(Region::new(region.to_string()))
+                .build();
+
+          unsafe {
+               S3_CONFIG.clone_from(&s3_config);
+
+               let client = aws_sdk_s3::Client::new(&*addr_of!(S3_CONFIG));
+
+               let manager = R2Manager {
+                    bucket_name: bucket_name.into(),
+                    client: Arc::new(client)
+               };
+               return manager;
+          }
+     }
+
      /// Get the bucket name of the R2Manager.
      pub fn get_bucket_name(&self) -> &str {
           &self.bucket_name
