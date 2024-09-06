@@ -4,7 +4,7 @@ version = "0.6.5"
 edition = "2021"
 repository = "https://github.com/milen-denev/cloudflare-r2-rs"
 license = "Apache-2.0"
-keywords = ["cloudflare", "r2", "object-storage", "S3"]
+keywords = ["cloudflare", "r2", "object-storage", "S3", "ovh"]
 authors = ["Milen Denev"]
 description = "A package which provides dead simple APIs to work with Cloudflare R2 and OVH Object Storage."
 
