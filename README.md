@@ -5,7 +5,7 @@ Simple Rust API for Cloudflare's R2 and OVH Object Storage (possibly others as w
 ### cargo.toml
 ```TOML
 [dependencies]
-cloudflare-r2-rs = "0.6.5"
+cloudflare-r2-rs = "0.6.6"
 ```
 
 ### example use
