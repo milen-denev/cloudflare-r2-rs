@@ -1,6 +1,6 @@
 [package]
 name = "cloudflare-r2-rs"
-version = "0.6.6"
+version = "0.6.7"
 edition = "2021"
 repository = "https://github.com/milen-denev/cloudflare-r2-rs"
 license = "Apache-2.0"
