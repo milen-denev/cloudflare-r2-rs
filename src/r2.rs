@@ -14,8 +14,7 @@ use aws_sdk_s3::config::Region;
 /// Endpoint selector for S3-compatible storage.
 ///
 /// - `Http` expects a full URI (e.g. `https://...`).
-/// - `Bucket` expects only a bucket name and will construct an AWS-style endpoint:
-///   `https://{bucket}.s3.{region}.amazonaws.com`
+/// - `Bucket` will construct an AWS-style endpoint
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum R2Endpoint {
      Http(String),
