@@ -1,8 +1,7 @@
 use std::sync::Arc;
+
 use aws_sdk_s3::config::Credentials;
 use aws_sdk_s3::config::SharedCredentialsProvider;
-use once_cell::sync::Lazy;
-
 use log::error;
 use log::info;
 use log::debug;
@@ -11,6 +10,17 @@ use aws_sdk_s3::primitives::ByteStream;
 use aws_sdk_s3::Client;
 use aws_sdk_s3::primitives::SdkBody;
 use aws_sdk_s3::config::Region;
+
+/// Endpoint selector for S3-compatible storage.
+///
+/// - `Http` expects a full URI (e.g. `https://...`).
+/// - `Bucket` expects only a bucket name and will construct an AWS-style endpoint:
+///   `https://{bucket}.s3.{region}.amazonaws.com`
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum R2Endpoint {
+     Http(String),
+     Bucket,
+}
 
 /// A struct providing most necessary APIs to work with Cloudflare R2 object storage.
 #[derive(Debug, Clone)]
@@ -24,14 +34,23 @@ impl R2Manager {
      /// to auto. Read more here <https://developers.cloudflare.com/r2/api/s3/api/>.
      pub async fn new(
           bucket_name: &str,
-          uri: &str, 
+          endpoint: R2Endpoint,
           client_id: &str,
           secret: &str,
           region: Option<String>
      ) -> R2Manager {
+          let region = region.unwrap_or_else(|| "us-east-1".to_string());
+
+          let endpoint_url = match endpoint {
+               R2Endpoint::Http(uri) => uri,
+               R2Endpoint::Bucket => {
+                    format!("https://s3.{region}.amazonaws.com")
+               }
+          };
+
           let cred = Credentials::new(
-               cloudflare_kv_client_id, 
-               cloudflare_kv_secret, 
+               client_id, 
+               secret, 
                None, 
                None, 
                "custom");
@@ -39,63 +58,21 @@ impl R2Manager {
           let shared_cred = SharedCredentialsProvider::new(cred);
 
           let s3_config = aws_config::load_from_env()
-                .await
-                .into_builder()
-                .credentials_provider(shared_cred)
-                .endpoint_url(cloudflare_kv_uri)
-                .region(Region::new("us-east-1"))
-                .build();
+               .await
+               .into_builder()
+               .credentials_provider(shared_cred)
+               .endpoint_url(endpoint_url)
+               .region(Region::new(region))
+               .build();
 
-          unsafe {
-               S3_CONFIG.clone_from(&s3_config);
+          let manager = R2Manager {
+               bucket_name: bucket_name.into(),
+               client: Arc::new(aws_sdk_s3::Client::new(&s3_config)),
+          };
 
-               let client = aws_sdk_s3::Client::new(&*addr_of!(S3_CONFIG));
-
-               let manager = R2Manager {
-                    bucket_name: bucket_name.into(),
-                    client: Arc::new(client)
-               };
-               return manager;
-          }
+          return manager;
      }
      
-     pub async fn new_with_region(
-          bucket_name: &str,
-          cloudflare_kv_uri: &str, 
-          cloudflare_kv_client_id: &str,
-          cloudflare_kv_secret: &str,
-          region: &str
-     ) -> R2Manager {
-          let cred = Credentials::new(
-               cloudflare_kv_client_id, 
-               cloudflare_kv_secret, 
-               None, 
-               None, 
-               "custom");
-
-          let shared_cred = SharedCredentialsProvider::new(cred);
-
-          let s3_config = aws_config::load_from_env()
-                .await
-                .into_builder()
-                .credentials_provider(shared_cred)
-                .endpoint_url(cloudflare_kv_uri)
-                .region(Region::new(region.to_string()))
-                .build();
-
-          unsafe {
-               S3_CONFIG.clone_from(&s3_config);
-
-               let client = aws_sdk_s3::Client::new(&*addr_of!(S3_CONFIG));
-
-               let manager = R2Manager {
-                    bucket_name: bucket_name.into(),
-                    client: Arc::new(client)
-               };
-               return manager;
-          }
-     }
-
      /// Get the bucket name of the R2Manager.
      pub fn get_bucket_name(&self) -> &str {
           &self.bucket_name

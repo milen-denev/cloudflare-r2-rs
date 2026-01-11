@@ -1,20 +1,19 @@
 [package]
 name = "cloudflare-r2-rs"
-version = "0.6.8"
-edition = "2021"
+version = "0.7.0"
+edition = "2024"
 repository = "https://github.com/milen-denev/cloudflare-r2-rs"
 license = "Apache-2.0"
 keywords = ["cloudflare", "r2", "object-storage", "S3", "ovh"]
 authors = ["Milen Denev"]
-description = "A package which provides dead simple APIs to work with Cloudflare R2 and OVH Object Storage."
+description = "A package which provides dead simple APIs to work with Cloudflare R2, OVH Object Storage and AWS S3."
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 aws-config = { version = "1.5", features = ["behavior-version-latest"] }
 aws-sdk-s3 = "1"
-once_cell = "1"
 log = "0.4"
-# tokio =  { version = "1.38.1", features = ["full"] }
-# env_logger = "0.11.3"
+# tokio =  { version = "1.49", features = ["full"] }
+# env_logger = "0.11"
 # stopwatch = "0.0.7"
