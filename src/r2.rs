@@ -1,4 +1,3 @@
-use std::ptr::addr_of;
 use std::sync::Arc;
 use aws_sdk_s3::config::Credentials;
 use aws_sdk_s3::config::SharedCredentialsProvider;
@@ -10,13 +9,8 @@ use log::debug;
 
 use aws_sdk_s3::primitives::ByteStream;
 use aws_sdk_s3::Client;
-use aws_config::SdkConfig;
 use aws_sdk_s3::primitives::SdkBody;
 use aws_sdk_s3::config::Region;
-
-static mut S3_CONFIG: Lazy<SdkConfig> = Lazy::new(|| { 
-     return SdkConfig::builder().build();
-});
 
 /// A struct providing most necessary APIs to work with Cloudflare R2 object storage.
 #[derive(Debug, Clone)]
@@ -30,9 +24,10 @@ impl R2Manager {
      /// to auto. Read more here <https://developers.cloudflare.com/r2/api/s3/api/>.
      pub async fn new(
           bucket_name: &str,
-          cloudflare_kv_uri: &str, 
-          cloudflare_kv_client_id: &str,
-          cloudflare_kv_secret: &str
+          uri: &str, 
+          client_id: &str,
+          secret: &str,
+          region: Option<String>
      ) -> R2Manager {
           let cred = Credentials::new(
                cloudflare_kv_client_id, 
